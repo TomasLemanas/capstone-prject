@@ -1,0 +1,105 @@
+.history-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgb(230, 130, 130);
+  z-index: 2;
+  margin-top: -30px;
+  border-radius: 2rem;
+  box-shadow: 2px -2px 5px 3px rgba(0, 0, 0, 0.3);
+  font-family: 'Yusei Magic', sans-serif;
+}
+
+.history-page h2 {
+  text-align: center;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  text-shadow: 1px -1px 5px rgba(0, 0, 0, 0.3);
+  font-family: 'Pacifico', cursive;
+  font-weight: 100;
+  font-size: 50px;
+}
+
+.history-page h3 {
+  text-align: center;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  text-shadow: 1px -1px 5px rgba(0, 0, 0, 0.3);
+  font-weight: 100;
+  font-size: 20px;
+}
+
+.question-history {
+  background-color: aliceblue;
+  width: 80%;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  margin: 15px;
+  border-radius: 2rem;
+  box-shadow: 2px -2px 5px 3px rgba(0, 0, 0, 0.3);
+}
+
+.question-history :hover {
+  cursor: pointer;
+}
+
+li {
+  list-style-type: none;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.history-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90%; /* Adjust based on your layout */
+  overflow: hidden; /* Prevents layout shift due to overflow */
+}
+
+.question-history-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: 90%; /* Ensure consistent width */ /* Optional: Set a max-width for larger screens */
+  margin: 0 auto; /* Centers the wrap */
+  overflow: auto; /* Allows scrolling within the wrap if content overflows */
+}
+
+.toggle-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.expand-icon {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 30px;
+  padding: 0 10px;
+}
+
+.remove-btn-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-btn {
+  border-radius: 2rem;
+  padding: 10px 30px 10px;
+  color: white;
+  background-color: red;
+  border-style: none;
+}
+
+#card-of-the-day-section {
+    padding-bottom: 30px;
+}
