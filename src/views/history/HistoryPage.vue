@@ -46,37 +46,16 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+import type {
+  CardOfTheDayReading,
+  ThreeCardReadings
+  
 
-interface Card {
-  name: string;
-  description: string;
-  prediction: string;
-}
+ } from './HistoryPage'
+import {
+  formatDate,
+} from './HistoryPage';
 
-interface CardOfTheDay extends Card {
-  prediction: string;
-}
-
-interface CardOfTheDayReading {
-  time: string;
-  card: CardOfTheDay;
-}
-
-interface ThreeCardReadings {
-  id: string;
-  question: string;
-  questionName: string;
-  cards: {
-    past: CardReading | null;
-    present: CardReading | null;
-    future: CardReading | null;
-  };
-}
-
-interface CardReading {
-  name: string;
-  description: string;
-}
 
 const threeCardDeckReadings = ref<ThreeCardReadings[]>([]);
 const cardOfTheDayReadings = ref<CardOfTheDayReading[]>([]);
@@ -114,8 +93,5 @@ function toggleCardOfTheDay(time: string) {
   expandedCardOfTheDay.value = expandedCardOfTheDay.value === time ? null : time;
 }
 
-function formatDate(time: string) {
-  return new Date(time).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
-}
 
 </script>
