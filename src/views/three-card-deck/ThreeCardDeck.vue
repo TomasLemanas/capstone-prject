@@ -3,7 +3,7 @@
     <div>
       <h1 id="three-card-deck-title">Three Card Tarot Reading</h1>
       <div class="top-instruction-wrap">
-        <p class="instructions">{{ getInstructionText() }}</p>
+        <p class="instructions">{{ instructionText }}</p>
       </div>
       <div @click="!showCards && drawCardsForThreeCardDeck()">
         <ThreeCardDecTarotkDeck
@@ -21,7 +21,7 @@
           rows="4"
           class="question-text-area"
         ></textarea>
-        <ThreeCardSubmitBtn @submitQuestion="handleQuestionSubmit" />
+        <ThreeCardSubmitBtn @submitQuestion="submitQuestion" />
       </div>
     </div>
     <div v-if="showCards" class="nine-card-grid">
@@ -39,11 +39,11 @@
       </div>
     </div>
     <div class="instruction-wrap">
-      <p class="instructions">{{ getInstructionText() }}</p>
+      <p class="instructions">{{ instructionText  }}</p>
     </div>
     <div v-if="showCardMeaningsModal" class="meaning-modal-overlay">
       <div class="meaning-modal-content">
-        <TheCardDeckMeaningModalCloseBtn @closeModal="closeAndReset" />
+        <TheCardDeckMeaningModalCloseBtn @closeModal="handleCloseAndReset" />
         <h2>Card Meanings</h2>
         <div class="card-meaning-wrap">
           <div class="meaning-modal-question">
@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import ThreeCardDecTarotkDeck from './ThreeCardDeckTarotDeck.vue'
 import ThreeCardSubmitBtn from './ThreeCardDeckSubmitBtn.vue'
 import ThreeCardDeckNineCards from './ThreeCardDeckNineCards.vue'
@@ -81,6 +81,7 @@ import TheCardDeckSaveAndCloseBtn from './TheCardDeckSaveAndCloseBtn.vue';
 import { initialCards } from '@/components/TarotCards'
 import type { Card } from '@/components/TarotCards'
 import type { threeCardReadings } from './ThreeCardDeckInterface'
+import { handleQuestionSubmit, closeAndReset, getInstructionText  } from './ThreeCardDeck';
 
 
 const showQuestionModal = ref(false)
@@ -97,29 +98,19 @@ const cardsToDisplay = ref(
 )
 const readingsHistory = ref<threeCardReadings[]>([])
 
+const instructionText = computed(() => getInstructionText({
+  isShowQuestionModal: showQuestionModal.value,
+  isShowCards: showCards.value,
+  selectedCardsLength: selectedCards.value.length
+}));
+
 function drawCardsForThreeCardDeck() {
   showQuestionModal.value = true
 }
 
-function handleQuestionSubmit() {
-
-  const trimmedQuestion = userQuestion.value.trim()
-
-  if (!trimmedQuestion) {
-    alert('Please enter a question.')
-  } else {
-    showQuestionModal.value = false
-    showCards.value = true
-    cardsToDisplay.value = initialCards
-      .map((card) => ({
-        ...card,
-        image: card.image,
-        selected: false
-      }))
-      .sort(() => 0.5 - Math.random())
-      .slice(0, 9)
-  }
-}
+const submitQuestion = () => {
+  handleQuestionSubmit(userQuestion, showQuestionModal, showCards, cardsToDisplay, initialCards);
+};
 
 function selectCard(selectedCard: Card) {
   if (
@@ -130,30 +121,17 @@ function selectCard(selectedCard: Card) {
   }
 }
 
-function closeAndReset() {
-  showCardMeaningsModal.value = false
-  showQuestionModal.value = false
-  showCards.value = false
-  userQuestion.value = ''
-  selectedCards.value = []
-  cardsToDisplay.value = initialCards
-    .map((card) => ({
-      ...card,
-      selected: false
-    }))
-    .sort(() => Math.random() - 0.5)
-}
 
-function getInstructionText() {
-  if (showQuestionModal.value) {
-    return 'Ask a question or focus on what you want to know, then submit to draw cards.'
-  } else if (showCards.value && selectedCards.value.length < 3) {
-    return 'Select three cards to see your past, present, and future.'
-  } else if (selectedCards.value.length === 3) {
-    return 'Press the button to reveal the meaning of your cards.'
-  } else {
-    return 'Click the top card deck to draw your cards.'
-  }
+function handleCloseAndReset() {
+  closeAndReset(
+    showCardMeaningsModal,
+    showQuestionModal,
+    showCards,
+    userQuestion,
+    selectedCards,
+    cardsToDisplay,
+    initialCards
+  );
 }
 
 function revealCardMeaningsInModal() {
@@ -181,7 +159,13 @@ function saveReadingAndClose() {
     readingsHistory.value.push(currentReading)
   }
 
-  closeAndReset()
+  closeAndReset(showCardMeaningsModal,
+    showQuestionModal,
+    showCards,
+    userQuestion,
+    selectedCards,
+    cardsToDisplay,
+    initialCards)
 }
 
 watch(

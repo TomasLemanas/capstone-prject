@@ -2,12 +2,12 @@
   <main class="container py-4" id="home-wrap">
     <h1 id="card-of-the-day-title">Card Of The Day</h1>
     <div class="card-of-the-day-button-wrap">
-      <p class="instructions">{{ getInstructionText() }}</p>
+      <p class="instructions">{{ instructionText }}</p>
     </div>
     <div class="container">
       <div class="cards-of-the-day-wrap">
         <div class="row justify-content-center my-3">
-          <CardOfTheDayDeck :deckClickable="deckClickable" @drawCards="drawCards" />
+          <CardOfTheDayDeck :deckClickable="deckClickable" @drawCards="handleDrawCards" />
         </div>
         <div class="row justify-content-center my-3">
           <CardOfTheDayTarotCard
@@ -16,6 +16,7 @@
             :card="card"
             :coverCardImage="coverCardImage"
             :pulsate="!cardSelected"
+            :hidden="selectedCard"
             @selectCard="selectCard"
           />
         </div>
@@ -32,11 +33,11 @@
       </div>
     </div>
     <div class="card-of-the-day-button-wrap">
-      <p class="instructions">{{ getInstructionText() }}</p>
+      <p class="instructions">{{ instructionText }}</p>
     </div>
-    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
+    <div v-if="showModal" class="modal-overlay" @click.self="handleCloseModal">
       <div class="modal-content">
-        <CardOfTheDayCloseBtn @close="closeModal" />
+        <CardOfTheDayCloseBtn @close="handleCloseModal" />
         <h2 class="modal-title">{{ selectedCard ? selectedCard.name : 'Card Details' }}</h2>
         <div class="container modal-inner-content">
           <div v-if="selectedCard" class="image-and-text">
@@ -53,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { Ref } from 'vue'
 import CardOfTheDayDeck from './CardOfTheDayDeck.vue'
 import CardOfTheDayTarotCard from './CardOfTheDayTarotCard.vue'
@@ -63,6 +64,7 @@ import CardOfTheDaySelectedCard from './CardOfTheDaySelectedCard.vue'
 import { initialCards } from '@/components/TarotCards'
 import type { Card } from '@/components/TarotCards'
 import coverCardImage from '../../assets/tarot-cards/tarot_cover.png'
+import { drawCards, handleSelectCard, closeModal, getInstructionText  } from './CardOfTheDay'
 
 
 const cardsDrawn = ref(false)
@@ -71,34 +73,20 @@ const selectedCard: Ref<Card | null> = ref(null)
 const showModal: Ref<boolean> = ref(false)
 const deckClickable = ref(true)
 const cardSelected = ref(false)
-const chatGptResponse: Ref<string | null> = ref(null)
+const chatResponse: Ref<string | null> = ref(null)
+const selectCard = handleSelectCard({ selectedCard, cardSelected, showModal });
+const instructionText = computed(() => getInstructionText({ cardSelected, showModal, cardsDrawn }));
 
-
-function drawCards() {
-  if (!deckClickable.value) return
-  const shuffled = initialCards.sort(() => 0.5 - Math.random())
-  cards.value = shuffled.slice(0, 3)
-  cardsDrawn.value = true
-  deckClickable.value = false
-}
-
-function selectCard(card: Card): void {
-  if (selectedCard.value && card.id === selectedCard.value.id) {
-    showModal.value = true
-  } else {
-    selectedCard.value = card
-    cardSelected.value = true
+function handleDrawCards() {
+  if (deckClickable.value) {
+    cards.value = drawCards(deckClickable.value, initialCards);
+    deckClickable.value = false;
+    cardsDrawn.value = true;
   }
 }
 
-function closeModal() {
-  showModal.value = false
-  chatGptResponse.value = null
-  cardsDrawn.value = false
-  cardSelected.value = false
-  selectedCard.value = null
-  deckClickable.value = true
-  cards.value = []
+function handleCloseModal() {
+  closeModal(showModal, chatResponse, cardsDrawn, cardSelected, selectedCard, deckClickable, cards);
 }
 
 function saveAndClose() {
@@ -114,19 +102,9 @@ function saveAndClose() {
     }
     currentReadings.push(newReading)
     localStorage.setItem('cardOfTheDayReadings', JSON.stringify(currentReadings))
-    closeModal()
+    handleCloseModal()
   }
 }
 
-function getInstructionText() {
-  if (cardSelected.value && !showModal.value) {
-    return 'Click the selected card to reveal your day'
-  } else if (cardSelected.value && showModal.value) {
-    return 'Click the selected card to reveal your day'
-  } else if (cardsDrawn.value && !cardSelected.value) {
-    return 'Pick one card'
-  } else {
-    return 'Click the top card deck to see your future.'
-  }
-}
+
 </script>

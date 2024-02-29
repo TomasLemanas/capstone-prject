@@ -57,13 +57,11 @@ const cardName = computed(() => (props.card ? props.card.name : ''))
 const emit = defineEmits(['selectCard'])
 
 function handleClick() {
-  if (
-    props.card &&
-    (!props.selectedCard || (props.selectedCard && props.card.id !== props.selectedCard.id))
-  ) {
-    emit('selectCard', props.card)
+  if (props.card && !props.selectedCard) {
+    emit('selectCard', props.card);
   }
 }
+
 </script>
 
 <style scoped>

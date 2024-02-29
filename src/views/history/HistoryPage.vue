@@ -16,7 +16,7 @@
         <p>Present: {{ reading.cards.present?.name }} - {{ reading.cards.present?.description }}</p>
         <p>Future: {{ reading.cards.future?.name }} - {{ reading.cards.future?.description }}</p>
         <div class="remove-btn-wrap">
-          <button class="remove-btn" @click.stop="removeThreeCardDeckReading(reading.id)">Remove</button>
+          <button class="remove-btn" @click.stop="handleRemoveThreeCardDeckReading(reading.id)">Remove</button>
         </div>
       </div>
     </div>
@@ -33,7 +33,7 @@
       <div v-if="expandedCardOfTheDay === reading.time">
         <p>{{ reading.card.name }} - {{ reading.card.prediction }}</p>
         <div class="remove-btn-wrap">
-          <button class="remove-btn" @click.stop="removeCardOfTheDayReading(reading.time)">Remove</button>
+          <button class="remove-btn" @click.stop="handleRemoveCardOfTheDayReading(reading.time)">Remove</button>
         </div>
       </div>
     </div>
@@ -49,11 +49,12 @@ import { onMounted, ref } from 'vue';
 import type {
   CardOfTheDayReading,
   ThreeCardReadings
-  
-
- } from './HistoryPage'
+  } from './HistoryPage'
 import {
   formatDate,
+  loadReadings,
+  removeThreeCardDeckReading,
+  removeCardOfTheDayReading
 } from './HistoryPage';
 
 
@@ -62,27 +63,27 @@ const cardOfTheDayReadings = ref<CardOfTheDayReading[]>([]);
 const expandedReadingId = ref<string | null>(null);
 const expandedCardOfTheDay = ref<string | null>(null);
 
-function loadReadings() {
-  const savedThreeCardReadings = localStorage.getItem('threeCardDeckReadings');
-  if (savedThreeCardReadings) {
-    threeCardDeckReadings.value = JSON.parse(savedThreeCardReadings);
+onMounted(() => {
+  loadReadings({
+    threeCardDeckReadings,
+    cardOfTheDayReadings,
+    localStorage,
+  });
+});
+
+onMounted(() => {
+  const storedReadings = localStorage.getItem('threeCardDeckReadings');
+  if (storedReadings) {
+    threeCardDeckReadings.value = JSON.parse(storedReadings);
   }
+});
 
-  const savedCardOfTheDayReadings = localStorage.getItem('cardOfTheDayReadings');
-  if (savedCardOfTheDayReadings) {
-    cardOfTheDayReadings.value = JSON.parse(savedCardOfTheDayReadings);
-  }
-}
-onMounted(loadReadings);
-
-function removeThreeCardDeckReading(id: string) {
-  threeCardDeckReadings.value = threeCardDeckReadings.value.filter(reading => reading.id !== id);
-  localStorage.setItem('threeCardDeckReadings', JSON.stringify(threeCardDeckReadings.value));
+function handleRemoveThreeCardDeckReading(id: string) {
+  removeThreeCardDeckReading(threeCardDeckReadings, id);
 }
 
-function removeCardOfTheDayReading(time: string) {
-  cardOfTheDayReadings.value = cardOfTheDayReadings.value.filter(reading => reading.time !== time);
-  localStorage.setItem('cardOfTheDayReadings', JSON.stringify(cardOfTheDayReadings.value));
+function handleRemoveCardOfTheDayReading(time: string) {
+  removeCardOfTheDayReading(cardOfTheDayReadings, time);
 }
 
 function toggleExpanded(id: string) {
